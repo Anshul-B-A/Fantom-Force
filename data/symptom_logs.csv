@@ -1,0 +1,3 @@
+timestamp,user_id,email,selected_symptoms,pain_level,notes
+2025-04-11T19:16:36.301020,guest@mammo.app,,2025-04-11,English,"['Swelling', 'Rash/Redness']",2,Moderate,,None,None
+2025-04-11T20:27:33.149011,guest@mammo.app,,2025-04-11,English,"[""Skin Dimpling"", ""Swelling"", ""Discharge: Watery"", ""Lump: None""]",4,High,,None,Watery
