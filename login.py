@@ -1,4 +1,4 @@
-# pages/auth.py
+# login.py
 import streamlit as st
 from supabase import create_client, Client
 import os

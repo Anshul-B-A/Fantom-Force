@@ -40,11 +40,10 @@ if st.button("Send Test Email"):
     st.success("Reminder email sent!")
 #<----------------------------testing email reminder--------------------->
 # Tabs for each feature
-tab1, tab2, tab3, tab4 ,tab5= st.tabs([
+tab1, tab2, tab3, tab4= st.tabs([
     t("🤖 GenAI Chatbot"), 
     t("🩺 Symptom Checker"), 
     t("📍 Find Nearby Hospitals"), 
-    t("🗣️ Community & Resources"),
     t("📝 Report Summarizer")
 ])
 
@@ -66,7 +65,7 @@ with tab1:
             if role == "user":
                 st.markdown(f"**🧑 {t('You')}:** {msg}")
             elif role == "bot":
-                st.markdown(f"**🤖 {t('nariSaathi')}:** {msg}")
+                st.markdown(f"**🤖 {t('Sthanya')}:** {msg}")
         scroll_spacer = st.empty()  # Helps with auto-scroll
 
     # Input box stays at the bottom
@@ -85,9 +84,9 @@ with tab1:
         try:
             for chunk in stream_groq_chat(user_input, st.secrets["GROK_API_KEY"]):
                 full_response += chunk
-                placeholder.markdown(f"**🤖 {t('nariSaathi')}:** {full_response}▌")
+                placeholder.markdown(f"**🤖 {t('Sthanya')}:** {full_response}▌")
                 time.sleep(0.03)
-            placeholder.markdown(f"**🤖 {t('nariSaathi')}:** {full_response}")
+            placeholder.markdown(f"**🤖 {t('Sthanya')}:** {full_response}")
             st.session_state.chat_history.append(("bot", full_response))
         except Exception as e:
             st.error(f"{t('Error')}: {str(e)}")
@@ -209,10 +208,8 @@ with tab3:
         unsafe_allow_html=True
     )
 # ---------------------------------------
-# 🗣️ Community & Resources (Stub)
+# 🗣️ Summarizer (Stub)
 # ---------------------------------------
-with tab4:
-    st.subheader(t("🗣️ explainer"))
 
 from textwrap import wrap
 
@@ -270,7 +267,7 @@ def summarize_with_groq(text, api_key):
     return "\n\n".join(summaries)
 
 
-with tab5:
+with tab4:
     st.subheader("Upload a Medical Report (PDF)")
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
