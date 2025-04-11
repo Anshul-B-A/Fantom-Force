@@ -16,7 +16,7 @@ language_options = {
 }
 selected_lang = st.selectbox("🌐 Select Language", list(language_options.keys()))
 st.session_state.lang = language_options[selected_lang]
-######-----------------------------------
+####### language --------------------------
 
 import time
 import requests
@@ -30,19 +30,12 @@ from utils.pdf_reader import extract_text_from_pdf
 #     st.switch_page("app.py")
 
 # Header
-st.title(t("🧭 Dashboard - Breast Cancer Support App"))
-#<----------------------------testing email reminder--------------------->
-import streamlit as st
-from utils.email_reminder import send_reminder_email
+st.title(t("🧭 Dashboard"))
 
-if st.button("Send Test Email"):
-    send_reminder_email("gayatrijayan2003@gmail.com")
-    st.success("Reminder email sent!")
-#<----------------------------testing email reminder--------------------->
 # Tabs for each feature
 tab1, tab2, tab3, tab4= st.tabs([
-    t("🤖 GenAI Chatbot"), 
-    t("🩺 Symptom Checker"), 
+    t("👩🏻‍⚕️ MammoMate AI"), 
+    t("🩺 Self Examination"), 
     t("📍 Find Nearby Hospitals"), 
     t("📝 Report Summarizer")
 ])
@@ -51,27 +44,28 @@ tab1, tab2, tab3, tab4= st.tabs([
 # 🤖 GenAI Chatbot
 # ---------------------------------------
 with tab1:
-    st.subheader(t("🤖 GenAI Chatbot (Groq-powered)"))
+    #st.subheader(t("👩🏻‍⚕️ GenAI Chatbot"))      #<----- commented temporarily
 
     # Initialize chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
     # Display chat history (top to bottom)
-    st.markdown("### " + t("🗨️ Chat"))
+    st.markdown(t(" I am MammoMate, your breast cancer AI assistant! When you chat with me please give me as much detials as possible so that I can help you in the best possible way."))
+    st.markdown("### " + t("🗨️ Chat with me!"))
     chat_container = st.container()
     with chat_container:
         for role, msg in st.session_state.chat_history:
             if role == "user":
-                st.markdown(f"**🧑 {t('You')}:** {msg}")
+                st.markdown(f"**👩🏻 {t('You')}:** {msg}")
             elif role == "bot":
-                st.markdown(f"**🤖 {t('Sthanya')}:** {msg}")
+                st.markdown(f"**👩🏻‍⚕️ {t('MammoMate')}:** {msg}")
         scroll_spacer = st.empty()  # Helps with auto-scroll
 
     # Input box stays at the bottom
     st.divider()
     user_input = st.text_input(
-        t("Ask something about breast cancer"),
+        t("Ask anything about breast cancer"),
         key="chat_input",
         placeholder=t("Type here and press send...")
     )
@@ -84,9 +78,9 @@ with tab1:
         try:
             for chunk in stream_groq_chat(user_input, st.secrets["GROK_API_KEY"]):
                 full_response += chunk
-                placeholder.markdown(f"**🤖 {t('Sthanya')}:** {full_response}▌")
+                placeholder.markdown(f"**👩🏻‍⚕️ {t('MammoMate')}:** {full_response}▌")
                 time.sleep(0.03)
-            placeholder.markdown(f"**🤖 {t('Sthanya')}:** {full_response}")
+            placeholder.markdown(f"**👩🏻‍⚕️ {t('MammoMate')}:** {full_response}")
             st.session_state.chat_history.append(("bot", full_response))
         except Exception as e:
             st.error(f"{t('Error')}: {str(e)}")
@@ -139,7 +133,14 @@ with tab2:
 
     # Pass user's email or user_id if authenticated
     self_exam_logger(email=st.session_state.get("email"), user_id=st.session_state.get("user_id"))
+    #<----------------------------testing email reminder--------------------->
+    import streamlit as st
+    from utils.email_reminder import send_reminder_email
 
+    if st.button("Send Test Email"):
+        send_reminder_email("gayatrijayan2003@gmail.com")
+    st.success("Reminder email sent!")
+    #<----------------------------testing email reminder--------------------->
     from components.self_exam_plots import render_self_exam_dashboard
     render_self_exam_dashboard()
 
