@@ -7,7 +7,7 @@ def get_base64_image(image_path):
         encoded = base64.b64encode(img_file.read()).decode()
     return f"data:image/jpeg;base64,{encoded}"
 
-# ------- Static Article Data (Easy to Copy-Paste) -------
+# ------- Static Article Data  -------
 articles = [
     {
         "title": "Breast Self-Examination Guide",
@@ -66,10 +66,10 @@ articles = [
 ]
 
 # ------- Page UI -------
-st.set_page_config(page_title="NariSaathi Discover", layout="wide")
+st.set_page_config(page_title="MammoMate Discover", layout="wide")
 
 st.markdown(
-    "<h1 style='text-align: center; color: #d63384;'>NariSaathi Community Articles</h1>",
+    "<h1 style='text-align: center; color: #d63384;'>MammoMate Community Articles</h1>",
     unsafe_allow_html=True
 )
 
