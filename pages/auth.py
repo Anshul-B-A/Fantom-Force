@@ -3,14 +3,24 @@ import streamlit as st
 from supabase import create_client, Client
 import os
 from utils.translation import t
+from streamlit_lottie import st_lottie
+import requests
+import json
 
+# Load particles Lottie animation
+def load_lottiefile(filepath: str):
+    with open(filepath, "r") as f:
+        return json.load(f)
 
-# You’ll need to set these in a .env file or securely in Streamlit secrets
+breast_cancer_anim = load_lottiefile("animations/breast_cancer.json")
+st_lottie(breast_cancer_anim, speed=1, loop=True, quality="low", height=250, key="particle")
+
+# --- Original auth page content below (unchanged) ---
+
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Default language
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
@@ -20,7 +30,6 @@ lang = st.selectbox(
     index=["English", "हिन्दी", "ಕನ್ನಡ", "മലയാളം"].index("English")
 )
 
-# Save language code in session
 lang_map = {
     "English": "en",
     "हिन्दी": "hi",
