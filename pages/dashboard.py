@@ -29,7 +29,14 @@ from utils.groq_helper import stream_groq_chat
 
 # Header
 st.title(t("🧭 Dashboard - Breast Cancer Support App"))
+#<----------------------------testing email reminder--------------------->
+import streamlit as st
+from utils.email_reminder import send_reminder_email
 
+if st.button("Send Test Email"):
+    send_reminder_email("gayatrijayan2003@gmail.com")
+    st.success("Reminder email sent!")
+#<----------------------------testing email reminder--------------------->
 # Tabs for each feature
 tab1, tab2, tab3, tab4 = st.tabs([
     t("🤖 GenAI Chatbot"), 
