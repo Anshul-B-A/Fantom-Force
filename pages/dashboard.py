@@ -1,5 +1,6 @@
 # ✅ MUST be the first Streamlit command
 import streamlit as st
+
 st.set_page_config(page_title="Dashboard", page_icon="🧭", layout="wide")
 ####### language --------------------------
 # Set default language if not already set
@@ -20,7 +21,8 @@ st.session_state.lang = language_options[selected_lang]
 import time
 import requests
 from utils.translation import t  # 👈 Import translation helper
-from utils.groq_helper import stream_groq_chat
+from utils.groq_helper import stream_groq_chat #, summarize_with_groq
+from utils.pdf_reader import extract_text_from_pdf
 
 # ✅ Optional: Redirect if not logged in
 # if "user" not in st.session_state:
@@ -31,11 +33,12 @@ from utils.groq_helper import stream_groq_chat
 st.title(t("🧭 Dashboard - Breast Cancer Support App"))
 
 # Tabs for each feature
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4 ,tab5= st.tabs([
     t("🤖 GenAI Chatbot"), 
     t("🩺 Symptom Checker"), 
     t("📍 Find Nearby Hospitals"), 
-    t("🗣️ Community & Resources")
+    t("🗣️ Community & Resources"),
+    t("📝 Report Summarizer")
 ])
 
 # ---------------------------------------
@@ -157,6 +160,86 @@ with tab3:
 # 🗣️ Community & Resources (Stub)
 # ---------------------------------------
 with tab4:
-    st.subheader(t("🗣️ Community Forum & Resources"))
-    st.info(t("Curated info, posts, and text-to-speech support will go here."))
+    st.subheader(t("🗣️ explainer"))
 
+from textwrap import wrap
+
+def split_text_into_chunks(text, max_chars=3000):
+    # Split based on sentence boundaries and chunk size
+    chunks = []
+    current_chunk = ""
+    for line in text.split(". "):
+        if len(current_chunk) + len(line) < max_chars:
+            current_chunk += line + ". "
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = line + ". "
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    return chunks
+
+def summarize_with_groq(text, api_key):
+    from utils.translation import t  # Optional: if you're using t() elsewhere
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    lang_code = st.session_state.get("lang", "en")
+
+    language_instruction_map = {
+        "en": "Summarize and simplify the medical report in clear, plain English.",
+        "hi": "कृपया इस मेडिकल रिपोर्ट को सरल हिंदी में समझाएं और सारांश दें।",
+        "kn": "ದಯವಿಟ್ಟು ಈ ವೈದ್ಯಕೀಯ ವರದಿಯನ್ನು ಸರಳ ಕನ್ನಡದಲ್ಲಿ ವಿವರಿಸಿ ಮತ್ತು ಸಾರಾಂಶ ನೀಡಿ.",
+        "ml": "ദയവായി ഈ മെഡിക്കൽ റിപ്പോർട്ട് ലളിതമായ മലയാളത്തിൽ വിശദീകരിക്കുകയും സംഗ്രഹിക്കുകയും ചെയ്യുക."
+    }
+
+    instruction = language_instruction_map.get(lang_code, language_instruction_map["en"])
+    chunks = split_text_into_chunks(text)
+    summaries = []
+
+    for i, chunk in enumerate(chunks):
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {"role": "system", "content": "You are a helpful assistant that explains medical reports clearly."},
+                {"role": "user", "content": f"{instruction}\n\nReport:\n{chunk}"}
+            ],
+            "temperature": 0.3,
+            "max_tokens": 1024
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code != 200:
+            raise Exception(f"Chunk {i+1}: {response.status_code} - {response.text}")
+        summaries.append(response.json()["choices"][0]["message"]["content"])
+
+    return "\n\n".join(summaries)
+
+
+with tab5:
+    st.subheader("Upload a Medical Report (PDF)")
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+
+    if uploaded_file is not None:
+        with open("temp_uploaded.pdf", "wb") as f:
+            f.write(uploaded_file.read())
+
+        #st.info("Extracting text from PDF...")
+        extracted_text = extract_text_from_pdf("temp_uploaded.pdf")
+        #st.text_area("Extracted Text", extracted_text, height=200)
+
+        if st.button("Summarize and Simplify"):
+            with st.spinner("Summarizing..."):
+                chunks = split_text_into_chunks(extracted_text, max_chars=3000)
+                for i, chunk in enumerate(chunks):
+                    try:
+                        summary = summarize_with_groq(chunk, st.secrets["GROQ_API_KEY"])
+                        st.text_area(f"📝 Summary", summary, height=250)
+                        #st.text_area(f"📝 Summary (Chunk {i + 1})", summary, height=250)
+                    except Exception as e:
+                        st.error(f"❌ Failed to summarize: Chunk {i + 1}: {e}")
+            
+                    # Wait to avoid hitting token per minute limits
+                    time.sleep(7)
