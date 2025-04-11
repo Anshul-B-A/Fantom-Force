@@ -141,16 +141,12 @@ with tab3:
     st.subheader(t("📍 Find Nearby Hospitals"))
 
     st.markdown(t("""
-    This interactive map shows clinics and hospitals near your current location. 
-    You can search, zoom, and click markers for more details.
+    Use the button below to explore nearby cancer clinics.
     """))
 
-    # Embed dynamic map with Places Autocomplete and Nearby Search
-    api_key = st.secrets["GCP_MAPS_API_KEY"]  # store your Google Maps key in .streamlit/secrets.toml
+    api_key = st.secrets["GCP_MAPS_API_KEY"]  # add your API key in .streamlit/secrets.toml
 
     html_code = f"""
-    <input id="pac-input" class="controls" type="text" placeholder="Search hospitals or locations" 
-           style="margin-top:10px; width: 60%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
     <div id="map" style="height: 600px; width: 100%; margin-top: 10px;"></div>
 
     <script>
@@ -170,70 +166,38 @@ with tab3:
                 position: userLocation,
                 map: map,
                 title: "You are here",
-                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-            }});
-
-            // Autocomplete search
-            const input = document.getElementById("pac-input");
-            const autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo("bounds", map);
-
-            const infowindow = new google.maps.InfoWindow();
-            const searchMarker = new google.maps.Marker({{
-                map: map,
-                anchorPoint: new google.maps.Point(0, -29)
-            }});
-
-            autocomplete.addListener("place_changed", () => {{
-                infowindow.close();
-                searchMarker.setVisible(false);
-                const place = autocomplete.getPlace();
-
-                if (!place.geometry || !place.geometry.location) {{
-                    window.alert("No details available for input: '" + place.name + "'");
-                    return;
-                }}
-
-                map.setCenter(place.geometry.location);
-                map.setZoom(15);
-                searchMarker.setPosition(place.geometry.location);
-                searchMarker.setVisible(true);
-                infowindow.setContent("<div><strong>" + place.name + "</strong><br>" + place.formatted_address + "</div>");
-                infowindow.open(map, searchMarker);
-            }});
-
-            // Show nearby clinics
-            const service = new google.maps.places.PlacesService(map);
-            service.nearbySearch({{
-                location: userLocation,
-                radius: 3000,
-                type: ["hospital"]
-            }}, function(results, status) {{
-                if (status === google.maps.places.PlacesServiceStatus.OK) {{
-                    for (let i = 0; i < results.length; i++) {{
-                        const place = results[i];
-                        const marker = new google.maps.Marker({{
-                            map: map,
-                            position: place.geometry.location,
-                            title: place.name
-                        }});
-
-                        marker.addListener("click", () => {{
-                            infowindow.setContent("<strong>" + place.name + "</strong><br>" + place.vicinity);
-                            infowindow.open(map, marker);
-                        }});
-                    }}
-                }}
+                icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
             }});
         }});
     }}
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={api_key}&libraries=places&callback=initMap" async defer></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={api_key}&callback=initMap" async defer></script>
     """
 
-    st.components.v1.html(html_code, height=700)
+    st.components.v1.html(html_code, height=650)
 
-
+    # Redirect button to Google Maps
+    st.markdown(
+        f"""
+        <div style='text-align: center; margin-top: 20px;'>
+            <a href="https://www.google.com/maps/search/breast+cancer+clinics+near+me/" target="_blank">
+                <button style="
+                padding: 10px 20px;
+                font-size: 16px;
+                background-color: #1e1e1e;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;">
+                    {t("🔍 Open Google Maps to Locate Nearby Clinics")}
+                </button>
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 # ---------------------------------------
 # 🗣️ Community & Resources (Stub)
 # ---------------------------------------
