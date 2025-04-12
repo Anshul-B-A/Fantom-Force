@@ -8,24 +8,23 @@ from datetime import datetime
 from utils.translation import t
 CSV_PATH = "data/symptom_logs.csv"
 
-SYMPTOM_CSV_COLUMNS = [
-    "date", "dimpling", "swelling", "inverted_nipple",
-    "redness", "nipple_discharge", "lump", "pain"
-]
-
 def load_logs():
     if not os.path.exists(CSV_PATH):
         st.warning("No logs found yet.")
-        return pd.DataFrame(columns=SYMPTOM_CSV_COLUMNS)  # Return an empty DataFrame with the correct columns
+        return pd.DataFrame()
 
-    try:
-        df = pd.read_csv(CSV_PATH)
-        if df.empty:
-            raise pd.errors.EmptyDataError("CSV is empty")  # Explicitly raise error if data is empty
-    except pd.errors.EmptyDataError:
-        # If the file is empty, return an empty DataFrame with the expected columns
-        st.warning("CSV file is empty.")
-        return pd.DataFrame(columns=SYMPTOM_CSV_COLUMNS)  # Adjust to your column names
+    df = pd.read_csv(CSV_PATH)
+
+    # Safely parse the 'selected_symptoms' column
+    def safe_json_loads(value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                return []  # Return an empty list if JSON is invalid
+        return []  # Return an empty list for non-string values
+
+    df["selected_symptoms"] = df["selected_symptoms"].apply(safe_json_loads)
 
     # Ensure 'created_at' column exists
     if "created_at" not in df.columns:
@@ -42,8 +41,6 @@ def load_logs():
         df["risk_level"] = "Unknown"  # Default value for missing risk levels
 
     return df
-
-
 
 def plot_risk_over_time(df):
     st.markdown("### 📅 Risk Score Over Time")
@@ -66,20 +63,14 @@ def plot_risk_levels(df):
 
 def plot_common_symptoms(df):
     st.markdown("### 🔍 Most Frequent Symptoms Reported")
-    
-    # Count how many times each symptom was reported as True
-    symptom_counts = df.drop(columns=["date", "created_at", "score", "risk_level"], errors="ignore").sum().sort_values(ascending=False)
-
-    symptom_df = pd.DataFrame({
-        "Symptom": symptom_counts.index,
-        "Count": symptom_counts.values
-    })
+    all_symptoms = sum(df["selected_symptoms"], [])
+    sym_df = pd.Series(all_symptoms).value_counts().reset_index()
+    sym_df.columns = ["Symptom", "Count"]
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    sns.barplot(data=symptom_df, x="Count", y="Symptom", ax=ax, palette="Blues_r")
+    sns.barplot(data=sym_df, x="Count", y="Symptom", ax=ax, palette="Blues_r")
     ax.set_title("Top Reported Symptoms")
     st.pyplot(fig)
-
 
 def render_self_exam_dashboard():
     df = load_logs()

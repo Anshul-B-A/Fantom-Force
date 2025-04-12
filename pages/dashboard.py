@@ -89,43 +89,61 @@ with tab1:
 # ---------------------------------------
 # 🩺 Symptom Checker (Stub)
 # ---------------------------------------
-# pages/dashboard.py
 
-import streamlit as st
 import pandas as pd
 from datetime import datetime
-import os
+from supabase import create_client, Client  # For Supabase integration
 
-# st.set_page_config(page_title="Dashboard - NariSaathi", layout="wide")
+# Initialize Supabase client (if using Supabase)
+SUPABASE_URL = st.secrets.get("SUPABASE_URL", None)
+SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", None)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
+
+# Function to save data locally or to Supabase
+def save_symptom_data(data):
+    if supabase:
+        try:
+            response = supabase.table("symptom_logs").insert(data).execute()
+            if response.status_code == 201:
+                st.success(t("Data saved successfully to Supabase!"))
+            else:
+                st.error(t("Failed to save data to Supabase."))
+        except Exception as e:
+            st.error(f"{t('Error saving to Supabase')}: {str(e)}")
+    else:
+        # Save to local CSV
+        try:
+            import json
+            data["selected_symptoms"] = json.dumps(data["selected_symptoms"])
+            import json
+            data["selected_symptoms"] = json.dumps(data["selected_symptoms"])
+            df = pd.DataFrame([data])
+
+
+            csv_file = "data/symptom_logs.csv"
+            if not os.path.exists(csv_file):
+                df.to_csv(csv_file, index=False)
+            else:
+                df.to_csv(csv_file, mode="a", header=False, index=False)
+            st.success(t("Data saved successfully to local CSV!"))
+        except Exception as e:
+            st.error(f"{t('Error saving to CSV')}: {str(e)}")
+
 with tab2:
-    st.title("📊 Health Dashboard")
-    st.markdown("Welcome to your personalized dashboard. Track your self-exams and insights below.")
-
-    # ---------------------------------------
-    # 🩺 Self-Exam Logger
-    # ---------------------------------------
-    st.markdown("### 🩺 Self Breast Exam Form")
-
     from components.self_exam_logger import self_exam_logger
 
-    # Optional: Capture return data for future use
+    # Pass user's email or user_id if authenticated
     self_exam_logger(email=st.session_state.get("email"), user_id=st.session_state.get("user_id"))
+    #<----------------------------testing email reminder--------------------->
+    import streamlit as st
+    from utils.email_reminder import send_reminder_email
 
-    # ---------------------------------------
-    # 📁 Overview: View past entries
-    # ---------------------------------------
-    st.markdown("### 📄 Your Logged Self-Exams")
-
-    csv_file = "data/symptom_logs.csv"
-    if os.path.exists(csv_file):
-        df = pd.read_csv(csv_file)
-
-        if not df.empty:
-            st.dataframe(df, use_container_width=True)
-        else:
-            st.info("No self-exam records found yet.")
-    else:
-        st.info("CSV file not found. Submit a self-exam to begin tracking.")
+    if st.button("Send Test Email"):
+        send_reminder_email("gayatrijayan2003@gmail.com")
+    st.success("Reminder email sent!")
+    #<----------------------------testing email reminder--------------------->
+    from components.self_exam_plots import render_self_exam_dashboard
+    render_self_exam_dashboard()
 
 # ---------------------------------------
 # 📍 Hospital Locator (Stub)
