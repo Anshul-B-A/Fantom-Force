@@ -30,7 +30,7 @@ from utils.pdf_reader import extract_text_from_pdf
 #     st.switch_page("app.py")
 
 # Header
-st.title(t("🧭 Dashboard"))
+st.title(t("🧭 Welcome to your Dashboard, Gayathri!"))
 
 # Tabs for each feature
 tab1, tab2, tab3, tab4= st.tabs([

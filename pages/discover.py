@@ -3,6 +3,21 @@ from utils.translation import t
 import base64
 
 st.set_page_config(page_title="MammoMate Discover", layout="wide")
+####### language --------------------------
+# Set default language if not already set
+if "lang" not in st.session_state:
+    st.session_state.lang = "en"
+
+# Language selector
+language_options = {
+    "English": "en",
+    "हिंदी": "hi",
+    "ಕನ್ನಡ": "kn",
+    "മലയാളം": "ml"
+}
+selected_lang = st.selectbox("🌐 Select Language", list(language_options.keys()))
+st.session_state.lang = language_options[selected_lang]
+####### language --------------------------
 
 
 tab1, tab2, tab3 = st.tabs([

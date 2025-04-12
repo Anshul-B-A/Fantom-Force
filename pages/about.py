@@ -4,8 +4,8 @@ from utils.translation import t
 st.set_page_config(page_title=t("About Us"), page_icon="🎗️")
 
 # Language selector
-lang = st.selectbox("🌐 " + t("Choose Language"), options=["en", "kn", "ml"], format_func=lambda x: {"en": "English", "kn": "ಕನ್ನಡ", "ml": "മലയാളം"}[x])
-st.session_state.lang = lang
+lang = st.selectbox("🌐 " + t("Choose Language"), options=["en", "hi", "kn", "ml"], format_func=lambda x: {"en": "English", "hi": "हिन्दी", "kn": "ಕನ್ನಡ", "ml": "മലയാളം"}[x])
+
 
 st.title(t("🎗️ About Us", lang))
 
