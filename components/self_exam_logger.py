@@ -1,30 +1,28 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
-from utils.supabase_client import supabase
 import os
-
-def log_to_supabase(data):
-    try:
-        supabase.table("symptom_logs").insert(data).execute()
-        return True
-    except Exception as e:
-        st.warning(f"Supabase logging failed: {e}")
-        return False
+from datetime import datetime
+import json
 
 def log_to_csv(data, csv_path):
-    import json
     data["selected_symptoms"] = json.dumps(data["selected_symptoms"])
-    df = pd.DataFrame([data])
+
+    # Ensure consistent column order
+    ordered_cols = [
+        "created_at", "email", "user_id", "exam_date", "language",
+        "selected_symptoms", "score", "risk_level", "notes",
+        "lump_side", "discharge_type"
+    ]
+    df = pd.DataFrame([data])[ordered_cols]
 
     if os.path.exists(csv_path):
         df.to_csv(csv_path, mode='a', header=False, index=False)
     else:
         df.to_csv(csv_path, mode='w', header=True, index=False)
-    st.success("Saved locally in CSV as fallback 📁")
+    st.success("Saved data! 📁")
 
 def self_exam_logger(email=None, user_id=None):
-    st.markdown("## 🩺 Self Breast Exam Form")
+    st.markdown("## 🩺 Self Breast Examination Log:")
     with st.container():
         with st.form("self_exam_form"):
             st.markdown("### 👀 Visual Symptoms")
@@ -47,19 +45,24 @@ def self_exam_logger(email=None, user_id=None):
             submitted = st.form_submit_button("✅ Submit Exam Report")
 
         if submitted:
-            # Risk Scoring
+            # Rule-based Risk Scoring (+1 per symptom)
             score = sum([
                 vis_dimpling, vis_swelling, vis_nipple_change,
                 vis_rash, vis_discharge != "None",
                 lump_present, tenderness
             ])
-            risk_level = (
-                "🟢 Low" if score <= 1 else
-                "🟡 Moderate" if score <= 3 else
-                "🔴 High"
+            risk_text = (
+                "Low" if score <= 1 else
+                "Moderate" if score <= 3 else
+                "High"
             )
+            risk_emoji = {
+                "Low": "🟢",
+                "Moderate": "🟡",
+                "High": "🔴"
+            }[risk_text]
 
-            st.markdown(f"### 📊 Risk Level: **{risk_level} Risk**")
+            st.markdown(f"### 📊 Risk Level: **{risk_emoji} {risk_text} Risk**")
 
             selected_symptoms = []
             if vis_dimpling: selected_symptoms.append("Skin Dimpling")
@@ -78,13 +81,10 @@ def self_exam_logger(email=None, user_id=None):
                 "language": language,
                 "selected_symptoms": selected_symptoms,
                 "score": score,
-                "risk_level": risk_level.split()[1],  # Low/Moderate/High
+                "risk_level": risk_text,  # Only "Low", "Moderate", "High"
                 "notes": notes,
                 "lump_side": lump_side,
                 "discharge_type": vis_discharge
             }
 
-            if log_to_supabase(log_data):
-                st.success("Self-exam saved to Supabase ✅")
-            else:
-                log_to_csv(log_data, "data/symptom_logs.csv")
+            log_to_csv(log_data, "data/symptom_logs.csv")
