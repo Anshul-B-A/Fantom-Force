@@ -51,8 +51,9 @@ with tab1:
         st.session_state.chat_history = []
 
     # Display chat history (top to bottom)
-    st.markdown(t(" I am MammoMate, your breast cancer AI assistant! When you chat with me please give me as much detials as possible so that I can help you in the best possible way."))
-    st.markdown("### " + t("🗨️ Chat with me!"))
+    st.markdown(t("👋 Hi, I'm **MammoMate.ai**, your personal breast cancer assistant. I'm here to support you with accurate, AI-powered guidance on breast health. Please feel free to share details about your symptoms, concerns, or questions — the more context you give, the better I can help! 💬"))
+    st.markdown("### " + t("🗨️ Our Chat:"))
+
     chat_container = st.container()
     with chat_container:
         for role, msg in st.session_state.chat_history:
@@ -269,8 +270,11 @@ def summarize_with_groq(text, api_key):
 
 
 with tab4:
-    st.subheader("Upload a Medical Report (PDF)")
+    st.subheader("📄 Upload a Medical Report (PDF)")
+    st.markdown("Got a medical report that's hard to understand? Attach it below, and I'll break it down into simple, easy-to-understand language for you.")
+
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+
 
     if uploaded_file is not None:
         with open("temp_uploaded.pdf", "wb") as f:
