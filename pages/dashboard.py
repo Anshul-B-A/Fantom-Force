@@ -1,7 +1,7 @@
 # ✅ MUST be the first Streamlit command
 import streamlit as st
 
-st.set_page_config(page_title="Dashboard", page_icon="🧭", layout="wide")
+st.set_page_config(page_title="Dashboard", page_icon="🎗️",  layout="wide")
 ####### language --------------------------
 # Set default language if not already set
 if "lang" not in st.session_state:

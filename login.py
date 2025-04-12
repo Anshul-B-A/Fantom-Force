@@ -6,6 +6,11 @@ from utils.translation import t
 from streamlit_lottie import st_lottie
 import requests
 import json
+st.set_page_config(
+    page_title="MammoMate Login",
+    page_icon="🎗️",  # this emoji becomes the favicon
+    layout="wide"
+)
 
 # Load particles Lottie animation
 def load_lottiefile(filepath: str):

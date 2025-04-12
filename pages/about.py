@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.translation import t
 
-st.set_page_config(page_title=t("About Us"), page_icon="📖")
+st.set_page_config(page_title=t("About Us"), page_icon="🎗️")
 
 # Language selector
 lang = st.selectbox("🌐 " + t("Choose Language"), options=["en", "kn", "ml"], format_func=lambda x: {"en": "English", "kn": "ಕನ್ನಡ", "ml": "മലയാളം"}[x])
