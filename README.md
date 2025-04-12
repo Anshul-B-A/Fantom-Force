@@ -51,17 +51,21 @@ All features are available even in guest mode, ensuring accessibility without th
 - **Backend:** _Python (Streamlit server)_
 - **Database:** _Supabase (PostgreSQL-based)_
 - **APIs / Libraries:** 
-  - _Groq API (LLM for chatbot)_
+  - _Groq API (LLM for chatbot and summarization)_
   - _Google Maps API (hospital locator)_
-  - _OpenCV (image-based symptom detection prototype)_
-  - _Langchain, TTS, HuggingFace Transformers_
-- **Tools:** _GitHub, Figma, JMeter, Python-dotenv_
+  - _PyMuPDF (PDF text extraction)_
+  - _Tesseract OCR (image-based text extraction)_
+  - _Matplotlib & Seaborn (data visualization)_
+  - _Pandas (data manipulation)_
+- **Tools:** _GitHub, Figma, Python-dotenv_
 
 ---
 
 ## 🧩 Architecture / Diagram (if any)
 
-![architecture](https://i.imgur.com/OQx0RnY.png)  
+
+<img width="1442" alt="Screenshot 2025-04-05 at 4 50 10 AM" src="https://github.com/user-attachments/assets/5e63080c-0b89-4059-a972-2c853176e61b" />
+  
 *Modular structure with language translation, AI chat, symptom checker, and community forum, all routed via Streamlit.*
 
 ---
@@ -71,7 +75,7 @@ All features are available even in guest mode, ensuring accessibility without th
 ### Prerequisites
 
 - Python 3.9+
-- A `.env` file with keys for:
+- A `.env` file and '.toml' file with keys for:
   - `GROQ_API_KEY`
   - `SUPABASE_URL`
   - `SUPABASE_KEY`
@@ -91,8 +95,8 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r [requirements.txt](http://_vscodecontentref_/0)
 
 # Run the app
-streamlit run login.py
+streamlit run [dashboard.py](http://_vscodecontentref_/1)
 
