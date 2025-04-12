@@ -10,7 +10,7 @@ def stream_groq_chat(user_query, api_key, model="meta-llama/llama-4-scout-17b-16
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": "You're a helpful breast cancer support assistant."},
+            {"role": "system", "content": "You're a helpful breast cancer support assistant. Answer in a human friendly and informative manner. Always return answers as given in each user prompt."},
             {"role": "user", "content": user_query}
         ],
         "stream": True
